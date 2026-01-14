@@ -1,18 +1,5 @@
 '''
-a script for generating labels, which can be configured to different sizes
-configurations here are for the APS's box and folder labels
-created by Paul Sutherland - psutherland@amphilsoc.org/p.suth@outlook.com
-
-TO DO:
-- turn quotes checking into a single function that receives the last character, especially if adding more possible quotes
-
-currently unsupported:
-- underline [u] (this would require using ReportLab's paragraph module)
-- right-align [r] (this would probably not be that difficult)
-- multiple columns on a line [|] (this would almost definitely require paragraph module)
-
-known errors:
-- text truncated in the middle of two quotations, e.g. "quoted folder name that contains "additional quote"", will only add one quote
+a script for generating labels from a spreadsheet
 '''
 
 from configparser import ConfigParser
@@ -136,7 +123,7 @@ registerFontFamily('Arial', normal='Arial', bold='Arial_b', italic='Arial_i', bo
 for line in LINES:
     # simple validation - it's an int or a valid character
     for char in line:
-        if char not in 'biusr|':
+        if char not in 'bis':
             try:
                 char = int(char)
             except:
@@ -153,7 +140,7 @@ for line in LINES:
                 raise ValueError('column ' + str(dig) + ' in line ' + li + ' is beyond the columns in your xlsx sheet')
 
 
-print("Parsed .ini files ... (note: r| not supported)")
+print("Parsed .ini files ...")
 
 '''
     SIZE CALCULATIONS WITHIN A LABEL
@@ -173,9 +160,8 @@ if USELOGO:
     textMaxWidth = textMaxWidth - LOGOWIDTH - LABELINTERNALPADDING
 
 # LINE HEIGHT
-fontFaceNormal = pdfmetrics.getFont(FONTFACE + "_b").face # use pdfmetrics to get info about the font we chose
+fontFaceNormal = pdfmetrics.getFont(FONTFACE + "_b").face # use pdfmetrics to get info about the font we chose, using bold because bold big
 lineHeightPx = (fontFaceNormal.ascent - fontFaceNormal.descent) / 1000 * FONTSIZENORMAL # line height is based on the biggest line - normal size - to avoid complexity
-#lineHeightPadding = 1.5 # padding to allow for more legible text, and used in the calculation of the max lines. MOVED TO INI variable FONTPADDING
 # calc max lines assuming no padding at bottom
 textMaxLines = int(textMaxHeight/(lineHeightPx * FONTPADDING)) # get the minimum number, assuming all padded lines
 r = textMaxHeight % (textMaxLines * lineHeightPx * FONTPADDING) # get the remainder
@@ -254,8 +240,9 @@ class Line():
         self.text = data[self.column-1]
         self.bold = True if 'b' in self.lineRaw else False
         self.italic = True if 'i' in self.lineRaw else False
-        self.underline = True if 'u' in self.lineRaw else False
         self.small = True if 's' in self.lineRaw else False
+        # unused so far
+        self.underline = True if 'u' in self.lineRaw else False
         self.right = True if 'r' in self.lineRaw else False
     
     def pickFonts(self):
@@ -279,7 +266,6 @@ class Line():
         self.overflowLines = len(max(self.textSplit, key=len))
         
 # make my lines
-# (equivalent to the not-okay: lines = [Line(x) for x in LINES if x else None])
 lines = []
 for x in LINES:
     if x:
@@ -364,7 +350,6 @@ for label in labels:
             canvas.setFont(label.fontFaceToUse[index], size=label.fontSizeToUse[index])
             canvas.drawString(label.textX, label.textY - (index * lineHeightPx * FONTPADDING), text=text)
     
-
 # save
 canvas.save()
 print("Labels saved. Your output file is in this directory and saved as: " + outputFilename)
