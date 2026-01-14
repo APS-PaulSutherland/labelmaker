@@ -4,19 +4,15 @@ This code does not adhere well to guidelines and is in a single file. It does it
 
 # Installation
 
-If you know Python: Clone this repo and make a virtual environment for Python with requirements.txt
+If at the APS, copy P:\labelmaker to your computer. This contains a copy of the executable file, for Windows, generated last on 1/14/2026. Please do not modify P:\labelmaker if you are just using it.
 
-If you want to run this on Windows as a .exe, copy the following files into a directory:
-- labelmaker.exe
-- *.ttf font files (x8)
-- *.ini files (x2)
-- logo.png
+For Python/development purposes: Clone this repo and make a virtual environment for Python with requirements.txt
 
 # Basic usage
 
 1. Make a spreadsheet (.xlsx) with the content of your labels, in the same directory as `labelmaker.py`/`labelmaker.exe`. Each row will become one label. There should be no column headers.
 2. Edit the file `config-content.ini` in a text editor. Modify at minimum: `label-maker-to-use` and `spreadsheet`, and usually the content of each line. Here you can also modify the configuration for your label content.
-3. Either double-click `labelmaker.exe` (if included) or run `python labelmaker.py`. If successful, you will get a PDF file in the same directory.
+3. Either double-click `labelmaker.exe` or run `python labelmaker.py`. If successful, you will get a PDF file in the same directory.
 4. Print labels. Use a test page first, and ensure no margins: set scaling to 100% or 'actual size', and check that the printer is not adding its own margins.
 
 # Detailed usage
@@ -56,13 +52,18 @@ You can define a new layout by copying all the parameters from one of the existi
 # Maintenance
 
 ## Authorship
-Written by Paul Sutherland, American Philosophical Society, 2024.
+Written by Paul Sutherland, American Philosophical Society, 2024. Adapted for Github January 2026.
 
 ## Executable file for distribution
-(Re)building an executable file for Windows is done using the PyInstaller library (not required otherwise to run this software). CD to directory and run command `python -m PyInstaller -F labelmaker.py`, and the .exe should appear in ./dist. Link to this README for instructions.
+(Re)building an executable file for Windows is done using the PyInstaller library (not required otherwise to run this software). CD to directory and run command `python -m PyInstaller -F labelmaker.py`, and the .exe should appear in ./dist. Distribute a folder containing:
+- labelmaker.exe
+- *.ttf font files (x8)
+- *.ini files (x2)
+- logo.png
+After this is done, you can delete the files and folders PyInstaller made (./dist, ./build, labelmaker.spec).
 
 ## Bugs
-- labelmaker.exe was too big for Github. I reduced the size of the library imports so hopefully this can be made small enough (under 100mb).
+- labelmaker.exe was too big for Github so this export lives on our servers.
 - text truncated in the middle of two quotations, e.g. "quoted folder name that contains "additional quote"", will only add one quote.
 
 ## Improvements

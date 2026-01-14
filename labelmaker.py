@@ -353,3 +353,4 @@ for label in labels:
 # save
 canvas.save()
 print("Labels saved. Your output file is in this directory and saved as: " + outputFilename)
+input("Press enter to exit.")
