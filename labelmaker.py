@@ -353,4 +353,5 @@ for label in labels:
 # save
 canvas.save()
 print("Labels saved. Your output file is in this directory and saved as: " + outputFilename)
+# keep window open so that .exe terminal will not disappear shortly after creating file
 input("Press enter to exit.")
