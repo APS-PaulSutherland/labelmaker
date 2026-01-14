@@ -59,7 +59,7 @@ You can define a new layout by copying all the parameters from one of the existi
 Written by Paul Sutherland, American Philosophical Society, 2024.
 
 ## Executable file for distribution
-(Re)building an executable file for Windows is done using the PyInstaller library (not required otherwise to run this software). CD to directory and run command `python -m PyInstaller -F labelmaker.py`, and the .exe should appear in ./dist. Link to this REA
+(Re)building an executable file for Windows is done using the PyInstaller library (not required otherwise to run this software). CD to directory and run command `python -m PyInstaller -F labelmaker.py`, and the .exe should appear in ./dist. Link to this README for instructions.
 
 ## Bugs
 - labelmaker.exe was too big for Github. I reduced the size of the library imports so hopefully this can be made small enough (under 100mb).
