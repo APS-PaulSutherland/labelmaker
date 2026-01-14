@@ -4,7 +4,7 @@ This code does not adhere well to guidelines and is in a single file. It does it
 
 # Installation
 
-If you know Python: Clone this repo and make a virtual environment for Python with requirements.exe
+If you know Python: Clone this repo and make a virtual environment for Python with requirements.txt
 
 If you want to run this on Windows as a .exe, copy the following files into a directory:
 - labelmaker.exe
