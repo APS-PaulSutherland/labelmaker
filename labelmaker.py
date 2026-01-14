@@ -15,16 +15,14 @@ known errors:
 - text truncated in the middle of two quotations, e.g. "quoted folder name that contains "additional quote"", will only add one quote
 '''
 
-import configparser
-import os
-import pandas
-import re
-import math
-import sys
+from configparser import ConfigParser
+from os.path import realpath, dirname, splitext
+from pandas import read_excel
+from re import match, search
+from math import ceil
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfgen.canvas import Canvas
@@ -33,7 +31,7 @@ from reportlab.lib.utils import simpleSplit
 
 CONTENT_INI = 'config-content.ini'
 LAYOUT_INI = 'config-layout.ini'
-CURRENTFOLDER = os.path.dirname(os.path.realpath(__file__))
+CURRENTFOLDER = dirname(realpath(__file__))
 LOGOFILE = 'logo.png'
 ELLIPSIS = "…"
 QUOTE_VERTICAL = "\""
@@ -45,10 +43,10 @@ parse .ini files
 '''
 
 # load content
-contentIniParser = configparser.ConfigParser()
+contentIniParser = ConfigParser()
 contentIniParser.read(CONTENT_INI)
 # load layout
-layoutIniParser = configparser.ConfigParser()
+layoutIniParser = ConfigParser()
 layoutIniParser.read(LAYOUT_INI)
 # make specs dictionary
 specs = dict()
@@ -56,7 +54,7 @@ specs = dict()
 specs.update(contentIniParser['main settings'])
 labelType = specs['label-type-to-use']
 dataFilename = specs['spreadsheet']
-outputFilename = os.path.splitext(dataFilename)[0] + '_OUTPUT_' + labelType + '.pdf'
+outputFilename = splitext(dataFilename)[0] + '_OUTPUT_' + labelType + '.pdf'
 # load remainder based on labelType
 if not labelType in contentIniParser.sections():
     raise ValueError('Label type ' + labelType + ' not found in ' + CONTENT_INI)
@@ -66,7 +64,7 @@ print('Creating label type: ' + labelType)
 print('Spreadsheet to use: ' + dataFilename)
 
 # load spreadsheet to dictionary, each column is a list, column headers are 0 onwards
-data = pandas.read_excel(dataFilename, header=None, na_filter=False)
+data = read_excel(dataFilename, header=None, na_filter=False)
 totalLabels = data.shape[0]
 dataColumns = data.shape[1]
 data = data.to_dict(orient="list")
@@ -108,7 +106,7 @@ elif specs['use-logo'] == 'no':
     USELOGO = False
 # lines - a little more calculation
 # find the lines programmatically by searching for the string ^line.*
-linesInSpecs = [k for k, v in specs.items() if re.search(r'^line.*', k)]
+linesInSpecs = [k for k, v in specs.items() if search(r'^line.*', k)]
 LINES = [specs[x] for x in linesInSpecs]
 NUMBEROFLINES = len(LINES)
 # find out which are blank, and not, and some useful numbers
@@ -123,14 +121,14 @@ ALLOWEDFONTS = ('Garamond', 'Arial')
 if FONTFACE not in ALLOWEDFONTS:
     raise ValueError('only these fonts are allowed: ' + str(ALLOWEDFONTS))
 TTFSearchPath.append(CURRENTFOLDER)
-pdfmetrics.registerFont(TTFont('Garamond', 'garamond.ttf'))
-pdfmetrics.registerFont(TTFont('Garamond_b', 'garamond_b.ttf'))
-pdfmetrics.registerFont(TTFont('Garamond_i', 'garamond_i.ttf'))
-pdfmetrics.registerFont(TTFont('Garamond_bi', 'garamond_bi.ttf'))
-pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-pdfmetrics.registerFont(TTFont('Arial_b', 'arial_b.ttf'))
-pdfmetrics.registerFont(TTFont('Arial_i', 'arial_i.ttf'))
-pdfmetrics.registerFont(TTFont('Arial_bi', 'arial_bi.ttf'))
+pdfmetrics.registerFont(TTFont('Garamond', 'font_garamond.ttf'))
+pdfmetrics.registerFont(TTFont('Garamond_b', 'font_garamond_b.ttf'))
+pdfmetrics.registerFont(TTFont('Garamond_i', 'font_garamond_i.ttf'))
+pdfmetrics.registerFont(TTFont('Garamond_bi', 'font_garamond_bi.ttf'))
+pdfmetrics.registerFont(TTFont('Arial', 'font_arial.ttf'))
+pdfmetrics.registerFont(TTFont('Arial_b', 'font_arial_b.ttf'))
+pdfmetrics.registerFont(TTFont('Arial_i', 'font_arial_i.ttf'))
+pdfmetrics.registerFont(TTFont('Arial_bi', 'font_arial_bi.ttf'))
 registerFontFamily('Garamond', normal='Garamond', bold='Garamond_b', italic='Garamond_i', boldItalic='Garamond_bi')
 registerFontFamily('Arial', normal='Arial', bold='Arial_b', italic='Arial_i', boldItalic='Arial_bi')
              
@@ -150,7 +148,7 @@ for line in LINES:
     line = line.split('|')
     for li in line:
         if li:
-            dig = int(re.match('^\d+', li).group()) # first 1 or more digits
+            dig = int(match('^\d+', li).group()) # first 1 or more digits
             if dig > dataColumns:
                 raise ValueError('column ' + str(dig) + ' in line ' + li + ' is beyond the columns in your xlsx sheet')
 
@@ -162,7 +160,7 @@ print("Parsed .ini files ... (note: r| not supported)")
     these will give us some warnings if, say, our font size is too big to fit the number of lines we want
 '''
 
-totalPages = math.ceil(totalLabels/(ROWS*COLUMNS))
+totalPages = ceil(totalLabels/(ROWS*COLUMNS))
 print('PDF pages to make: ' + str(totalPages))
 pageWidth, pageHeight = LETTER
 
@@ -252,7 +250,7 @@ class Line():
         self.linesToAttempt = 1
         
     def parseVariables(self):
-        self.column = int(re.match('^\d+', self.lineRaw).group())
+        self.column = int(match('^\d+', self.lineRaw).group())
         self.text = data[self.column-1]
         self.bold = True if 'b' in self.lineRaw else False
         self.italic = True if 'i' in self.lineRaw else False
